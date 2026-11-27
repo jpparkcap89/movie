@@ -195,7 +195,7 @@
     if (item.queue) {
       if (!toDrive) {
         btn.fail();
-        toast.show('YouTube 영상은 "드라이브로"를 눌러 주세요. PC 도우미가 받아서 드라이브에 올립니다.', { type: 'err' });
+        toast.show('이 영상은 "드라이브로"를 눌러 주세요. PC 도우미가 받아서 드라이브에 올립니다.', { type: 'err' });
         return;
       }
       try {

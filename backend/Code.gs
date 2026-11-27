@@ -140,23 +140,27 @@ function analyze_(url) {
   if (!items.some(i => i.type === 'video')) add('video', meta['og:video:secure_url'] || meta['og:video']);
   if (!items.length) add('image', meta['og:image'] || meta['twitter:image']);
 
-  if (!items.length) {
-    throw new Error('저장할 파일을 찾지 못했어요. 공개 게시물이 맞는지 확인해 주세요. ' +
-      '공개 게시물인데도 안 되면 플랫폼이 구글 서버의 요청을 막은 거예요.');
-  }
-
   let vi = 0, ii = 0;
   items.forEach(it => {
     const size = it.width && it.height ? ' · ' + it.width + '×' + it.height : '';
     it.label = it.type === 'video' ? '영상 ' + (++vi) + ' · MP4' : '사진 ' + (++ii) + size;
   });
 
+  // 구글 서버에서 영상 주소를 못 찾으면(로그인 벽 등) PC 도우미(yt-dlp)로 받을 수 있게 맨 앞에 넣습니다
+  let note = '';
+  if (!vi) {
+    items.unshift({ type: 'video', url: url, label: '영상 · PC 도우미로 드라이브에 저장', queue: true });
+    note = '구글 서버에서는 영상 파일을 찾지 못했어요. 영상 게시물이면 "영상 · PC 도우미"를 골라 "드라이브로"를 누르세요. ' +
+      'PC가 켜져 있으면 몇 분 안에 드라이브에 올라와요.';
+  }
+
   return {
     platform: src.platform,
     sourceUrl: url,
     title: decodeEntities_(meta['og:title'] || meta['twitter:title'] || meta['title'] || '제목 없음'),
     description: decodeEntities_(meta['og:description'] || ''),
-    thumbnail: unescapeUrl_(meta['og:image'] || (items.find(i => i.type === 'image') || {}).url || ''),
+    thumbnail: unescapeUrl_(meta['og:image'] || (items.find(i => i.type === 'image' && !i.queue) || {}).url || ''),
+    note: note,
     items: items,
   };
 }
@@ -381,8 +385,10 @@ function queueCount_() {
 }
 
 function queueAdd_(ip, body) {
-  const url = String(body.url || '');
-  if (!/^https:\/\/www\.youtube\.com\/watch\?v=[\w-]{11}$/.test(url)) throw new Error('YouTube 영상 주소가 아니에요.');
+  const url = String(body.url || '').trim();
+  if (!/^https:\/\//.test(url) || !SOURCE_HOSTS.some(s => s.re.test(hostOf_(url)))) {
+    throw new Error('YouTube, Instagram, Threads, Facebook 주소만 대기열에 넣을 수 있어요.');
+  }
   const before = stats_(ip);
   if (before.myCount >= CONFIG.PER_IP_DAILY) throw new Error('오늘 받을 수 있는 횟수(' + CONFIG.PER_IP_DAILY + '회)를 모두 썼어요.');
 
@@ -448,7 +454,8 @@ function queueDone_(ip, body) {
     const bytes = Number(body.bytes) || 0;
     sh.getRange(r, Q.STATE, 1, 1).setValue('완료');
     sh.getRange(r, Q.FILE, 1, 4).setValues([[fileUrl, bytes, String(body.name || ''), new Date()]]);
-    record_(ip, 'youtube', 'video', bytes, 'pc', job.values[Q.URL - 1]);
+    const src = SOURCE_HOSTS.find(s => s.re.test(hostOf_(job.values[Q.URL - 1])));
+    record_(ip, src ? src.platform : 'video', 'video', bytes, 'pc', job.values[Q.URL - 1]);
   } else {
     sh.getRange(r, Q.STATE, 1, 1).setValue('실패');
     sh.getRange(r, Q.NOTE, 1, 2).setValues([[String(body.message || '').slice(0, 500), new Date()]]);
