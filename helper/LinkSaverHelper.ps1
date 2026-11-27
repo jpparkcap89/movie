@@ -9,6 +9,7 @@
 #>
 param(
   [switch]$Setup,           # 비밀 키 입력 + 5분마다 자동 실행 등록
+  [switch]$Register,        # 저장된 키로 연결 확인 + 자동 실행 등록만
   [switch]$Unregister       # 자동 실행 해제
 )
 
@@ -36,13 +37,15 @@ function Get-Config {
 
 function Get-ApiKey {
   if (-not (Test-Path $KeyPath)) { throw '비밀 키가 없습니다. -Setup으로 먼저 설정해 주세요.' }
-  $secure = Get-Content $KeyPath -Raw | ConvertTo-SecureString
+  $secure = (Get-Content $KeyPath -Raw).Trim() | ConvertTo-SecureString
   $ptr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
   try { return [Runtime.InteropServices.Marshal]::PtrToStringBSTR($ptr) }
   finally { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptr) }
 }
 
 function Find-Tool([string]$Name) {
+  $local = Join-Path $Here "bin\$Name.exe"   # 도우미 폴더의 bin을 먼저 씁니다
+  if (Test-Path $local) { return $local }
   $cmd = Get-Command $Name -ErrorAction SilentlyContinue
   if ($cmd) { return $cmd.Source }
   $links = Join-Path $env:LOCALAPPDATA "Microsoft\WinGet\Links\$Name.exe"
@@ -188,13 +191,15 @@ if ($Unregister) {
   return
 }
 
-if ($Setup) {
+if ($Setup -or $Register) {
+ if ($Setup) {
   Write-Host ''
   Write-Host '링크 저장소 PC 도우미 설정' -ForegroundColor Cyan
   Write-Host 'Apps Script 실행 로그에 나온 비밀 키(API_KEY)를 붙여넣고 Enter를 누르세요. (화면에는 보이지 않습니다)'
   $secure = Read-Host -AsSecureString '비밀 키'
   $secure | ConvertFrom-SecureString | Set-Content -Path $KeyPath
   Write-Host '비밀 키를 이 Windows 계정으로 암호화해 저장했습니다.' -ForegroundColor Green
+ }
 
   $script:Config = Get-Config
   $script:ApiKey = Get-ApiKey

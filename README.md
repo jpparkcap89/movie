@@ -84,3 +84,15 @@ GAS는 응답을 한 번에 돌려주기 때문에 진짜 진행률을 알 수 �
 ## 참고
 
 혼자 쓰는 용도로 만들었어요. 각 플랫폼의 약관과 저작권을 지켜서, 직접 만들었거나 저장해도 되는 콘텐츠에만 쓰세요.
+
+## PC 도우미 (영상 받기)
+
+YouTube·Instagram·Facebook·Threads 영상은 구글 서버(GAS)에서 받을 수 없어서, 내 PC가 대신 받아 드라이브에 올립니다.
+
+1. `C:\Users\<사용자>\LinkSaverHelper\`에 `LinkSaverHelper.ps1`, `config.json`, `bin\`(yt-dlp.exe, ffmpeg.exe, ffprobe.exe)을 둡니다.
+2. 일반 Windows PowerShell 창에서 처음 한 번 설정합니다. 비밀 키를 넣으면 이 Windows 계정으로 암호화해 `key.dat`에 저장하고, 작업 스케줄러에 5분마다 실행을 등록합니다.
+   ```powershell
+   powershell -NoProfile -ExecutionPolicy Bypass -File LinkSaverHelper.ps1 -Setup
+   ```
+3. 키는 그대로 두고 자동 실행만 다시 등록: `-Register` · 해제: `-Unregister`
+4. 웹 화면에서 영상 항목을 고르고 **드라이브로**를 누르면 대기열(`queue` 시트)에 들어가고, PC가 켜져 있으면 몇 분 안에 드라이브 폴더에 올라옵니다. 기록은 `helper.log`에 남습니다.
