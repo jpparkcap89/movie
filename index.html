@@ -1,1 +1,180 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>링크 저장소</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="lucian.css">
+</head>
+<body>
+  <div class="blobs" aria-hidden="true"><i class="b1"></i><i class="b2"></i><i class="b3"></i></div>
 
+  <header class="top wrap">
+    <a class="brand" href="./"><span class="mark">링</span><span>링크 저장소</span></a>
+    <span class="tag">🔒 개인용</span>
+  </header>
+
+  <main class="wrap page">
+    <section class="hero">
+      <span class="eyebrow">✨ 공개 게시물 저장 도구</span>
+      <h1>사진과 영상,<br><span class="grad">링크 하나로 간편하게.</span></h1>
+      <p class="lead">게시물 링크를 붙여넣으면 <strong>내 기기나 구글 드라이브</strong>에 바로 저장합니다. 여러 장이면 원하는 사진을 골라 한 장씩 받을 수 있습니다.</p>
+      <ul class="chips">
+        <li><span class="dot" style="--c:#ef4444"></span>YouTube <em>썸네일</em></li>
+        <li><span class="dot" style="--c:#e1306c"></span>Instagram</li>
+        <li><span class="dot" style="--c:#24324a"></span>Threads</li>
+        <li><span class="dot" style="--c:#3b63f6"></span>Facebook</li>
+      </ul>
+    </section>
+
+    <div class="grid">
+      <section class="glass main-card" aria-labelledby="save-title">
+        <p class="kicker">SAVE</p>
+        <h2 id="save-title">📥 무엇을 저장할까요?</h2>
+        <p class="sub">공개 게시물의 주소를 넣고 분석하면 저장할 수 있는 사진과 영상이 나타납니다.</p>
+
+        <form id="form" novalidate>
+          <!-- Lucian UX/UI Prompt #025 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/#025 -->
+          <div class="ux u025">
+            <div class="u025-f" id="url-f">
+              <div class="u025-box">
+                <input class="u025-in" id="url" type="url" inputmode="url" autocomplete="off" spellcheck="false">
+                <span class="u025-line" aria-hidden="true"><i class="l"></i><i class="g"></i><i class="r"></i></span>
+                <label class="u025-lab">게시물 주소</label>
+                <span class="u025-ok" aria-hidden="true"><svg viewBox="0 0 14 14"><path d="M3 7.3l2.7 2.7L11 4.5"/></svg></span>
+              </div>
+              <div class="u025-help"><span class="u025-msg" aria-live="polite"></span></div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button id="paste" type="button" class="btn-glass">📋 붙여넣기</button>
+            <!-- Lucian UX/UI Prompt #438 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/#438 -->
+            <div class="ux u438">
+              <button type="submit" class="u438-b" data-s="idle"><span class="u438-l">링크 분석하기 →</span><i class="u438-sp" aria-hidden="true"></i><svg class="u438-ck" viewBox="0 0 24 24" aria-hidden="true"><path d="m5.5 12.5 4.5 4.5 8.5-9.5"/></svg><i class="u438-ring" aria-hidden="true"></i></button>
+              <p class="u438-live" role="status"></p>
+            </div>
+          </div>
+        </form>
+
+        <div id="result" class="result" hidden>
+          <div class="info">
+            <img id="thumb" alt="" referrerpolicy="no-referrer">
+            <div class="info-text">
+              <span class="done-pill">분석 완료</span>
+              <h3 id="title"></h3>
+              <p id="meta" class="meta"></p>
+            </div>
+          </div>
+          <p id="note" class="note" hidden></p>
+
+          <!-- Lucian UX/UI Prompt #031 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/#031 -->
+          <div class="ux u031" id="picker">
+            <div class="u031-f">
+              <span class="u031-lab">저장할 항목 <span id="count"></span></span>
+              <button class="u031-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
+                <span class="u031-flag" aria-hidden="true"></span>
+                <span class="u031-v"><b></b><small></small></span>
+                <svg class="u031-car" viewBox="0 0 18 18" aria-hidden="true"><path d="M4.5 7l4.5 4.5L13.5 7"/></svg>
+              </button>
+              <ul class="u031-list" role="listbox" tabindex="-1" aria-label="저장할 항목"><li class="u031-hl" role="presentation" aria-hidden="true"></li></ul>
+            </div>
+          </div>
+
+          <div class="save-actions">
+            <!-- Lucian UX/UI Prompt #004 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/#004 -->
+            <div class="ux u004" id="dl" data-state="idle">
+              <button class="u004-btn" type="button" aria-label="내 기기로 다운로드 (받는 중에 누르면 취소)">
+                <span class="u004-track" aria-hidden="true"><span class="u004-bar"></span></span>
+                <span class="u004-idle" aria-hidden="true">
+                  <span class="u004-arw"><svg viewBox="0 0 24 24"><g class="u004-a"><path d="M12 4.5v11M7 11l5 5 5-5"/></g><path d="M5 19.5h14"/></svg></span>
+                  <b>내 기기로</b><small>다운로드</small>
+                </span>
+                <span class="u004-run" aria-hidden="true"><b class="u004-pct">받는 중</b><small class="u004-eta"></small></span>
+                <span class="u004-ok" aria-hidden="true"><i><svg viewBox="0 0 16 16"><path d="M3.5 8.4l3 3 6-6.4"/></svg></i><span>저장됨</span></span>
+              </button>
+              <span class="u004-live" aria-live="polite"></span>
+            </div>
+            <!-- Lucian UX/UI Prompt #004 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/#004 -->
+            <div class="ux u004 is-alt" id="gd" data-state="idle">
+              <button class="u004-btn" type="button" aria-label="구글 드라이브에 저장 (받는 중에 누르면 기다리기를 멈춤)">
+                <span class="u004-track" aria-hidden="true"><span class="u004-bar"></span></span>
+                <span class="u004-idle" aria-hidden="true">
+                  <span class="u004-arw"><svg viewBox="0 0 24 24"><g class="u004-a"><path d="M12 9.5v9M8.5 13l3.5-3.5 3.5 3.5"/></g><path d="M7 17.5a4 4 0 0 1-.6-7.95A5.5 5.5 0 0 1 17 8.6a3.8 3.8 0 0 1 .5 7.57"/></svg></span>
+                  <b>드라이브로</b><small>바로 저장</small>
+                </span>
+                <span class="u004-run" aria-hidden="true"><b class="u004-pct">올리는 중</b><small class="u004-eta"></small></span>
+                <span class="u004-ok" aria-hidden="true"><i><svg viewBox="0 0 16 16"><path d="M3.5 8.4l3 3 6-6.4"/></svg></i><span>드라이브에 저장됨</span></span>
+              </button>
+              <span class="u004-live" aria-live="polite"></span>
+            </div>
+          </div>
+
+          <p id="status" class="status" role="status"></p>
+          <a id="direct" class="direct" target="_blank" rel="noopener noreferrer" hidden></a>
+        </div>
+      </section>
+
+      <aside class="side">
+        <section class="glass side-card" aria-labelledby="usage-title">
+          <p class="kicker">USAGE</p>
+          <h2 id="usage-title">📊 오늘 사용량</h2>
+          <div class="tiles">
+            <div class="tile"><span>받은 횟수</span><strong id="s-count">–</strong></div>
+            <div class="tile"><span>전송량</span><strong id="s-bytes">–</strong></div>
+          </div>
+          <p class="fine">매일 한국 시간 자정에 새로 셉니다. 기록은 내 구글 시트에만 남습니다.</p>
+        </section>
+
+        <section class="glass side-card" aria-labelledby="how-title">
+          <p class="kicker">HOW</p>
+          <h2 id="how-title">🧭 이렇게 저장합니다</h2>
+          <ul class="features">
+            <li><span class="emoji" aria-hidden="true">💻</span><div><strong>내 기기로</strong><p>20MB 이하 파일은 <b>바로 다운로드</b>되고, 더 크면 새 탭에서 원본을 엽니다.</p></div></li>
+            <li><span class="emoji" aria-hidden="true">☁️</span><div><strong>드라이브로</strong><p>큰 영상도 <b>내 기기를 거치지 않고</b> '링크 저장소' 폴더에 올립니다.</p></div></li>
+            <li><span class="emoji" aria-hidden="true">📒</span><div><strong>기록은 시트에</strong><p>파일은 서버에 <b>남기지 않고</b> 날짜와 크기만 기록합니다.</p></div></li>
+          </ul>
+        </section>
+
+        <button id="change-key" type="button" class="btn-glass full">🔑 비밀 키 다시 입력</button>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="foot">© 2026 링크 저장소 · 링크 하나로 간편하게</footer>
+
+  <!-- Lucian UX/UI Prompt #435 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/#435 -->
+  <div class="ux u435" id="toasts"><section class="u435-rg" aria-label="알림"></section></div>
+
+  <dialog id="key-dialog" class="glass">
+    <form method="dialog" id="key-form" novalidate>
+      <p class="kicker">SECRET KEY</p>
+      <h2>🔑 비밀 키 입력</h2>
+      <p class="sub">Apps Script에서 <code>setup</code>을 실행하면 로그에 나오는 키를 넣어 주세요. <strong>이 브라우저에만</strong> 저장됩니다.</p>
+      <!-- Lucian UX/UI Prompt #025 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/#025 -->
+      <div class="ux u025">
+        <div class="u025-f" id="key-f">
+          <div class="u025-box">
+            <input class="u025-in" id="key-input" type="password" autocomplete="off" spellcheck="false">
+            <span class="u025-line" aria-hidden="true"><i class="l"></i><i class="g"></i><i class="r"></i></span>
+            <label class="u025-lab">API_KEY</label>
+            <span class="u025-ok" aria-hidden="true"><svg viewBox="0 0 14 14"><path d="M3 7.3l2.7 2.7L11 4.5"/></svg></span>
+          </div>
+          <div class="u025-help"><span class="u025-msg" aria-live="polite"></span></div>
+        </div>
+      </div>
+      <div class="dialog-actions">
+        <button value="cancel" type="submit" class="btn-glass">닫기</button>
+        <button value="ok" type="submit" class="btn-primary">저장</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="config.js"></script>
+  <script src="ui.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

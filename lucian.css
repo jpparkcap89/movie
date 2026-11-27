@@ -1,0 +1,198 @@
+/* Lucian UX/UI Prompt theme tokens · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+   --ux-* 토큰은 cap89 팔레트에 맞춰 매핑했습니다 (cap89는 라이트 전용). */
+:root{
+  color-scheme:light;
+  --ux-page:#f8fbff; --ux-surface:#ffffff; --ux-surface-2:#f4f7ff; --ux-surface-3:#e8eefc;
+  --ux-ink:#24324a; --ux-ink-2:#667085; --ux-ink-3:#98a2b3;
+  --ux-line:rgba(36,50,74,.07); --ux-line-2:rgba(36,50,74,.15);
+  --ux-accent:#3b63f6; --ux-accent-2:#38bdf8; --ux-accent-soft:rgba(59,99,246,.12); --ux-accent-ink:#ffffff;
+  --ux-mint:#2bb39a; --ux-warn:#f59e0b; --ux-danger:#e5486b;
+  --ux-glass:rgba(255,255,255,.72); --ux-glass-line:rgba(255,255,255,.95);
+  --ux-shadow:rgba(67,89,146,.16); --ux-shadow-strong:rgba(67,89,146,.32);
+  --ux-grad:linear-gradient(100deg,#3b63f6 0%,#38bdf8 52%,#f59e0b 100%);
+  --ux-ease:cubic-bezier(.2,.8,.2,1);
+  --ux-spring:cubic-bezier(.34,1.45,.64,1);
+}
+/* 요소 공통 베이스 */
+.ux,.ux *,.ux *::before,.ux *::after{box-sizing:border-box}
+.ux{
+  font-family:var(--font);
+  color:var(--ux-ink);-webkit-font-smoothing:antialiased;letter-spacing:-.01em;
+  -webkit-tap-highlight-color:transparent;
+  word-break:keep-all;overflow-wrap:break-word;
+}
+:where(.ux) :is(button,input,textarea,select){font:inherit;color:inherit}
+:where(.ux) button{cursor:pointer}
+.ux :focus-visible{outline:2px solid var(--ux-accent);outline-offset:3px}
+.ux [hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){
+  .ux,.ux *,.ux *::before,.ux *::after{
+    animation-duration:.001ms!important;animation-iteration-count:1!important;
+    transition-duration:.001ms!important;scroll-behavior:auto!important;
+  }
+}
+
+/* ───────── Lucian UX/UI Prompt #025 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/#025
+   테두리로 떠오르는 라벨 입력 — 조정: 고정 크기(340×268) 대신 부모 폭에 맞춤, 샘플 버튼 스타일 제거 */
+.u025{position:relative;width:100%;display:flex;flex-direction:column;gap:14px}
+.u025-f{position:relative}
+.u025-box{position:relative;height:62px}
+.u025-in{position:absolute;inset:0;width:100%;height:100%;padding:18px 48px 0 18px;border:0;outline:0;border-radius:16px;background:var(--ux-surface);font-size:16.5px;font-weight:560;color:var(--ux-ink);letter-spacing:-.01em}
+.u025-line{position:absolute;inset:0;display:flex;pointer-events:none;border-radius:16px}
+.u025-line i{display:block;border:1.5px solid var(--ux-line-2);transition:border-color .3s var(--ux-ease)}
+.u025-line .l{width:14px;border-right:0;border-radius:16px 0 0 16px}
+.u025-line .g{width:var(--gap,0px);border-left:0;border-right:0;transition:width .35s var(--ux-ease),border-color .3s var(--ux-ease)}
+.u025-line .r{flex:1;border-left:0;border-radius:0 16px 16px 0}
+.u025-f.is-up .u025-line .g{border-top-color:transparent!important}
+.u025-f.is-focus .u025-line i{border-color:var(--ux-accent);border-width:2px}
+.u025-f.is-bad .u025-line i{border-color:var(--ux-danger)}
+.u025-f.is-ok .u025-line i{border-color:var(--ux-mint)}
+.u025-lab{position:absolute;left:18px;top:21px;padding:0 4px;margin-left:-4px;font-size:16px;font-weight:560;color:var(--ux-ink-3);transform-origin:0 0;pointer-events:none;white-space:nowrap;
+  transition:transform .35s var(--ux-ease),color .3s var(--ux-ease)}
+.u025-f.is-up .u025-lab{transform:translate(0,-30px) scale(.8);color:var(--ux-ink-2);font-weight:650}
+.u025-f.is-focus .u025-lab{color:var(--ux-accent)}
+.u025-f.is-bad .u025-lab{color:var(--ux-danger)}
+.u025-f.is-up .u025-in{padding-top:0}
+.u025-ok{position:absolute;right:16px;top:50%;width:26px;height:26px;margin-top:-13px;border-radius:50%;display:grid;place-items:center;background:var(--ux-mint);color:var(--ux-accent-ink);transform:scale(0);transition:transform .45s var(--ux-spring)}
+.u025-ok svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.u025-ok path{stroke-dasharray:16;stroke-dashoffset:16;transition:stroke-dashoffset .35s var(--ux-ease) .15s}
+.u025-f.is-ok .u025-ok{transform:none}
+.u025-f.is-ok .u025-ok path{stroke-dashoffset:0}
+.u025-f.is-shake .u025-box{animation:u025-shake .42s var(--ux-ease)}
+@keyframes u025-shake{20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(2px)}}
+.u025-help{display:grid;grid-template-rows:0fr;transition:grid-template-rows .4s var(--ux-ease)}
+.u025-help>span{overflow:hidden;min-height:0;display:flex;align-items:center;gap:6px;padding-left:4px;font-size:13px;font-weight:600;color:var(--ux-danger)}
+.u025-help>span::before{content:"!";display:grid;place-items:center;width:16px;height:16px;flex:none;border-radius:50%;background:var(--ux-danger);color:var(--ux-accent-ink);font-size:11px;font-weight:800}
+.u025-f.is-bad .u025-help{grid-template-rows:1fr}
+.u025-f.is-bad .u025-help>span{padding-top:8px}
+.u025-in:focus-visible{outline:none}
+
+/* ───────── Lucian UX/UI Prompt #438 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/#438
+   로딩→완료 버튼 — 조정: 고정 크기(340×300) 칸 대신 버튼 크기만큼만 차지 */
+.u438{position:relative;display:inline-grid;place-items:center}
+.u438-b{--w:auto;position:relative;width:var(--w);height:48px;padding:0;border:0;border-radius:24px;background:var(--ux-accent);color:var(--ux-accent-ink);font-size:15px;font-weight:650;letter-spacing:-.01em;box-shadow:0 1px 0 rgba(255,255,255,.2) inset,0 10px 24px -12px var(--ux-accent),0 2px 4px -2px var(--ux-shadow);cursor:pointer;transform:scale(var(--k,1));transition:width .46s cubic-bezier(.65,0,.35,1),background-color .35s var(--ux-ease),box-shadow .3s var(--ux-ease),transform .5s cubic-bezier(.34,1.7,.5,1)}
+.u438-b:hover{--k:1.02}
+.u438-b.is-down{--k:.93;transition:width .46s cubic-bezier(.65,0,.35,1),background-color .35s var(--ux-ease),box-shadow .3s var(--ux-ease),transform .12s var(--ux-ease)}
+.u438-b.is-grow{transition:width .62s cubic-bezier(.34,1.32,.5,1),background-color .35s var(--ux-ease),box-shadow .3s var(--ux-ease),transform .5s cubic-bezier(.34,1.7,.5,1)}
+.u438 .u438-b:focus-visible{outline:2px solid var(--ux-accent);outline-offset:4px}
+.u438-l{display:block;padding:0 30px;white-space:nowrap;transition:opacity .22s var(--ux-ease),filter .22s var(--ux-ease),transform .3s var(--ux-ease)}
+.u438-b[data-s="busy"] .u438-l,.u438-b[data-s="ok"] .u438-l{opacity:0;filter:blur(4px);transform:scale(.9)}
+.u438-b[data-s="idle"].is-grow .u438-l{transition-delay:.16s}
+.u438-sp,.u438-ck{position:absolute;left:50%;top:50%;width:22px;height:22px;margin:-11px 0 0 -11px;opacity:0;transform:scale(.4);transition:opacity .2s var(--ux-ease),transform .4s cubic-bezier(.34,1.6,.5,1);pointer-events:none}
+.u438-sp{border-radius:50%;border:2.5px solid color-mix(in srgb,currentColor 28%,transparent);border-top-color:currentColor;animation:u438-spin .75s linear infinite}
+@keyframes u438-spin{to{rotate:360deg}}
+.u438-b[data-s="busy"] .u438-sp{opacity:1;transform:none;transition-delay:.22s}
+.u438-ck{fill:none;stroke:currentColor;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}
+.u438-ck path{stroke-dasharray:20;stroke-dashoffset:20;transition:stroke-dashoffset .38s var(--ux-ease) .12s}
+.u438-b[data-s="ok"]{background:var(--ux-mint);box-shadow:0 1px 0 rgba(255,255,255,.2) inset,0 10px 24px -12px var(--ux-mint),0 2px 4px -2px var(--ux-shadow);animation:u438-pop .5s cubic-bezier(.34,1.7,.5,1)}
+@keyframes u438-pop{40%{transform:scale(1.12)}}
+.u438-b[data-s="ok"] .u438-ck{opacity:1;transform:none}
+.u438-b[data-s="ok"] .u438-ck path{stroke-dashoffset:0}
+.u438-ring{position:absolute;inset:0;border-radius:inherit;box-shadow:0 0 0 2px var(--ux-mint);opacity:0;pointer-events:none}
+.u438-b[data-s="ok"] .u438-ring{animation:u438-ring .7s var(--ux-ease) .1s}
+@keyframes u438-ring{0%{opacity:.7;transform:scale(1)}100%{opacity:0;transform:scale(1.7)}}
+.u438-live{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+/* ───────── Lucian UX/UI Prompt #031 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/#031
+   맞춤 선택 목록 — 조정: 카드 틀(340×436, 제목·저장 버튼) 제거하고 부모 폭에 맞춤, 항목이 많으면 목록 안에서 스크롤 */
+.u031{position:relative}
+.u031-f{position:relative;margin-bottom:14px}
+.u031-lab{display:block;margin:0 2px 7px;font-size:12.5px;font-weight:700;color:var(--ux-ink-3)}
+.u031-btn{display:flex;align-items:center;gap:12px;width:100%;height:56px;padding:0 14px;border:0;border-radius:16px;background:var(--ux-surface-2);color:var(--ux-ink);text-align:left;
+  box-shadow:inset 0 0 0 1.5px transparent;transition:box-shadow .25s var(--ux-ease),background-color .25s}
+.u031-btn:hover{box-shadow:inset 0 0 0 1.5px var(--ux-line-2)}
+.u031-btn:focus-visible,.u031.is-open .u031-btn[aria-expanded="true"]{outline:0;background:var(--ux-surface);box-shadow:inset 0 0 0 2px var(--ux-accent),0 0 0 5px var(--ux-accent-soft)}
+.u031-flag{width:30px;height:30px;flex:none;border-radius:9px;display:grid;place-items:center;font-size:10.5px;font-weight:800;letter-spacing:.02em;color:#fff;background:var(--c)}
+.u031-v{flex:1;min-width:0}
+.u031-v b{display:block;font-size:15.5px;font-weight:680}
+.u031-v small{display:block;font-size:12px;color:var(--ux-ink-3)}
+.u031-car{width:18px;height:18px;fill:none;stroke:var(--ux-ink-3);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .45s var(--ux-spring)}
+.u031-btn[aria-expanded="true"] .u031-car{transform:rotate(180deg)}
+.u031-list{position:absolute;z-index:5;left:0;right:0;top:calc(100% + 8px);margin:0;padding:6px;list-style:none;border-radius:18px;background:var(--ux-surface);
+  box-shadow:0 0 0 1px var(--ux-line-2),0 28px 56px -24px var(--ux-shadow-strong);transform-origin:50% 0;outline:none;
+  opacity:0;transform:translateY(-6px) scaleY(.92);visibility:hidden;transition:opacity .2s var(--ux-ease),transform .4s var(--ux-spring),visibility 0s .4s;
+  max-height:288px;overflow-y:auto;overscroll-behavior:contain}
+.u031-list.is-open{opacity:1;transform:none;visibility:visible;transition:opacity .2s var(--ux-ease),transform .45s var(--ux-spring)}
+.u031-hl{position:absolute;left:6px;right:6px;top:6px;height:46px;border-radius:12px;background:var(--ux-surface-2);transform:translateY(calc(var(--i,0) * 46px));transition:transform .35s var(--ux-spring);pointer-events:none}
+.u031-o{position:relative;display:flex;align-items:center;gap:12px;height:46px;padding:0 10px;border-radius:12px;cursor:pointer;font-size:14.5px;font-weight:620}
+.u031-o .u031-flag{width:26px;height:26px;border-radius:8px;font-size:9.5px}
+.u031-o small{margin-left:4px;font-size:12px;font-weight:500;color:var(--ux-ink-3)}
+.u031-ck{margin-left:auto;width:18px;height:18px;fill:none;stroke:var(--ux-accent);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;opacity:0;transform:scale(.4);transition:opacity .2s,transform .4s var(--ux-spring)}
+.u031-o[aria-selected="true"] .u031-ck{opacity:1;transform:none}
+
+/* ───────── Lucian UX/UI Prompt #004 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/#004
+   진행률 다운로드 버튼 — 조정: 고정 크기(310×190)·파일 줄 제거, 버튼 폭 268px → 부모 폭 100%,
+   막대 색을 cap89 그라데이션으로, 두 번째 버튼(.is-alt)은 파란 바탕 */
+.u004{--bar:linear-gradient(90deg,#3b63f6,#38bdf8 60%,#7fd8c9);position:relative;width:100%;display:flex;flex-direction:column;align-items:center}
+.u004-btn{--p:0;position:relative;width:100%;height:66px;border:0;padding:0;border-radius:999px;background:var(--ux-ink);color:var(--ux-page);overflow:hidden;isolation:isolate;
+  box-shadow:0 22px 36px -22px var(--ux-shadow-strong);transition:width .6s var(--ux-ease),transform .5s var(--ux-spring),background-color .5s var(--ux-ease)}
+.u004.is-alt .u004-btn{background:var(--ux-accent)}
+.u004-btn:hover{transform:translateY(-2px)}
+.u004-btn:active{transform:scale(.97)}
+.u004-btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.u004-btn:focus-visible{outline:2px solid var(--ux-accent);outline-offset:4px}
+.u004-idle,.u004-run,.u004-ok{position:absolute;inset:0;display:flex;align-items:center;transition:opacity .35s var(--ux-ease),transform .5s var(--ux-ease)}
+.u004-idle{gap:14px;padding:0 24px 0 9px}
+.u004-arw{width:48px;height:48px;flex:none;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--ux-page) 14%,transparent);overflow:hidden}
+.u004-arw svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round}
+.u004-arw .u004-a{transition:transform .5s var(--ux-ease)}
+.u004-btn:hover .u004-arw .u004-a{animation:u004-bob 1s var(--ux-ease) infinite}
+@keyframes u004-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
+.u004-idle b{font-size:17px;font-weight:700;letter-spacing:-.02em;white-space:nowrap}
+.u004-idle small{margin-left:auto;font-size:13px;font-weight:600;opacity:.55;white-space:nowrap}
+.u004-track{position:absolute;inset:0;background:color-mix(in srgb,var(--ux-ink) 88%,var(--ux-page));opacity:0;transition:opacity .4s var(--ux-ease)}
+.u004-bar{position:absolute;left:0;top:0;bottom:0;width:100%;background:var(--bar);transform-origin:0 50%;transform:scaleX(var(--p));border-radius:inherit}
+.u004-bar::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.35) 50%,transparent 70%);background-size:220% 100%;animation:u004-shine 1.3s linear infinite}
+@keyframes u004-shine{from{background-position:120% 0}to{background-position:-100% 0}}
+.u004-run{justify-content:space-between;padding:0 26px;opacity:0;transform:translateY(12px);color:#fff}
+.u004-run b{font-size:17px;font-weight:760;font-variant-numeric:tabular-nums;letter-spacing:-.02em;white-space:nowrap}
+.u004-run small{font-size:13px;font-weight:600;opacity:.82;white-space:nowrap}
+.u004-ok{justify-content:center;gap:10px;opacity:0;transform:scale(.6);color:var(--ux-accent-ink)}
+.u004-ok i{width:30px;height:30px;flex:none;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,currentColor 18%,transparent)}
+.u004-ok svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}
+.u004-ok path{stroke-dasharray:18;stroke-dashoffset:18;transition:stroke-dashoffset .45s var(--ux-ease) .25s}
+.u004-ok span{font-size:16px;font-weight:700;white-space:nowrap;max-width:0;overflow:hidden;opacity:0;transition:max-width .6s var(--ux-ease),opacity .4s var(--ux-ease)}
+.u004[data-state="run"] .u004-idle{opacity:0;transform:translateY(-12px)}
+.u004[data-state="run"] .u004-arw .u004-a{transform:translateY(26px)}
+.u004[data-state="run"] .u004-track{opacity:1}
+.u004[data-state="run"] .u004-run{opacity:1;transform:none}
+.u004[data-state="fold"] .u004-idle,.u004[data-state="done"] .u004-idle{opacity:0}
+.u004[data-state="fold"] .u004-btn{width:66px;background:var(--ux-mint)}
+.u004[data-state="fold"] .u004-bar{opacity:0}
+.u004[data-state="fold"] .u004-ok,.u004[data-state="done"] .u004-ok{opacity:1;transform:none}
+.u004[data-state="fold"] .u004-ok path,.u004[data-state="done"] .u004-ok path{stroke-dashoffset:0}
+.u004[data-state="done"] .u004-btn{background:var(--ux-mint);transition-timing-function:var(--ux-spring)}
+.u004[data-state="done"] .u004-ok span{max-width:200px;opacity:1}
+.u004-live{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+/* ───────── Lucian UX/UI Prompt #435 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/#435
+   토스트 알림 — 조정: 데모 칸(340×300)·저장 버튼 대신 화면 오른쪽 아래 고정, '실행 취소' 자리를 동작 버튼(열기)으로, 오류 모양(.is-err) 추가 */
+.u435{position:fixed;right:16px;bottom:16px;z-index:50;width:min(380px,calc(100vw - 32px));height:0;pointer-events:none}
+.u435-rg{position:absolute;left:0;right:0;bottom:0;height:76px}
+.u435-t{position:absolute;left:0;right:0;bottom:0;height:56px;display:flex;align-items:center;gap:11px;padding:0 8px 0 14px;border-radius:16px;background:var(--ux-surface);box-shadow:0 0 0 1px var(--ux-line-2),0 14px 30px -14px var(--ux-shadow-strong),0 2px 6px -2px var(--ux-shadow);transform-origin:50% 100%;transform:translate3d(var(--x,0px),var(--y,0px),0) scale(var(--s,1));opacity:var(--o,1);transition:transform .62s cubic-bezier(.3,1.42,.52,1),opacity .3s var(--ux-ease);touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:grab;pointer-events:auto}
+.u435-t.is-drag{transition:opacity .3s var(--ux-ease);cursor:grabbing}
+.u435-t>*{transition:opacity .25s var(--ux-ease)}
+.u435-t.is-back>*{opacity:0}
+.u435-ic{position:relative;flex:none;width:22px;height:22px}
+.u435-ic>span{position:absolute;inset:0;border-radius:50%;display:grid;place-items:center;transition:opacity .25s var(--ux-ease),transform .45s cubic-bezier(.34,1.6,.5,1)}
+.u435-ic .ok{background:var(--ux-mint);color:var(--ux-surface)}
+.u435-t.is-err .u435-ic .ok{background:var(--ux-danger)}
+.u435-ic svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}
+.u435-ic .ok path{stroke-dasharray:18;stroke-dashoffset:18;animation:u435-draw .4s var(--ux-ease) .22s forwards}
+.u435-t.is-in .u435-ic .ok{animation:u435-pop .5s cubic-bezier(.34,1.7,.5,1) .08s both}
+@keyframes u435-draw{to{stroke-dashoffset:0}}
+@keyframes u435-pop{from{transform:scale(.3)}}
+.u435-tx{flex:1;min-width:0;display:grid}
+.u435-tx b{grid-area:1/1;font-size:13px;line-height:1.35;font-weight:600;letter-spacing:-.01em;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.u435-un{flex:none;height:28px;padding:0 10px;border:0;border-radius:8px;background:var(--ux-surface-2);font-size:12.5px;font-weight:650;color:var(--ux-accent);transition:opacity .2s var(--ux-ease),transform .3s var(--ux-ease),background-color .15s}
+.u435-un:hover{background:var(--ux-surface-3)}
+.u435-x{flex:none;width:26px;height:26px;padding:0;border:0;border-radius:8px;display:grid;place-items:center;background:none;color:var(--ux-ink-3);transition:background-color .15s,color .15s}
+.u435-x:hover{background:var(--ux-surface-2);color:var(--ux-ink)}
+.u435-x svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
+.u435 .u435-un:focus-visible,.u435 .u435-x:focus-visible{outline:2px solid var(--ux-accent);outline-offset:1px}
+.u435-pb{position:absolute;left:16px;right:16px;bottom:0;height:2px;border-radius:2px;overflow:hidden}
+.u435-pb i{display:block;height:100%;border-radius:inherit;background:var(--ux-mint);opacity:.75;transform-origin:0 50%;animation:u435-pb linear forwards}
+.u435-t.is-err .u435-pb i{background:var(--ux-danger)}
+@keyframes u435-pb{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+.u435-rg.is-paused .u435-pb i{animation-play-state:paused}
+@media (prefers-reduced-motion:reduce){.u435-pb{display:none}}
