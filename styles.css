@@ -117,6 +117,7 @@ body {
 .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0 10px; }
 .tile { padding: 12px 14px; border-radius: var(--r-md); background: rgba(255, 255, 255, .78); border: 1px solid var(--hairline); transition: transform .2s; }
 .tile:hover { transform: translateY(-3px); }
+.tile.wide { grid-column: 1 / -1; }
 .tile span { display: block; font-size: 12px; color: var(--muted); }
 .tile strong { display: block; font-size: 22px; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
 .fine { margin: 0; font-size: 12px; color: var(--muted); line-height: 1.6; }

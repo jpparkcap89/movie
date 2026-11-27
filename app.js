@@ -97,6 +97,7 @@
   function renderStats(s) {
     $('s-count').textContent = s.myCount + '회';
     $('s-bytes').textContent = formatBytes(s.totalBytes);
+    $('s-queue').textContent = (s.queued || 0) + '개';
   }
 
   function setStatus(msg, isError) {
@@ -146,8 +147,10 @@
   function updateLabels() {
     const it = current && current.items[picker.value()];
     const word = it && it.type === 'video' ? '영상' : '사진';
-    document.querySelector('#dl .u004-idle small').textContent = word + ' 다운로드';
-    document.querySelector('#gd .u004-idle small').textContent = word + ' 바로 저장';
+    const queued = !!(it && it.queue);
+    document.querySelector('#dl .u004-idle small').textContent = queued ? '드라이브만 가능' : word + ' 다운로드';
+    document.querySelector('#gd .u004-idle small').textContent = queued ? 'PC 도우미로 저장' : word + ' 바로 저장';
+    dlBtn.setDisabled(queued);
   }
 
   function saveBase64(b64, mime, filename) {
@@ -187,6 +190,28 @@
     if (!item) return;
     const btn = toDrive ? gdBtn : dlBtn;
     const other = toDrive ? dlBtn : gdBtn;
+
+    // YouTube 영상: 내 PC 도우미의 대기열에 넣습니다
+    if (item.queue) {
+      if (!toDrive) {
+        btn.fail();
+        toast.show('YouTube 영상은 "드라이브로"를 눌러 주세요. PC 도우미가 받아서 드라이브에 올립니다.', { type: 'err' });
+        return;
+      }
+      try {
+        const r = await api('queue', { url: item.url, title: current.title });
+        btn.finish('대기열에 추가됨');
+        setStatus(r.duplicate
+          ? '이미 대기열에 있는 영상입니다. PC 도우미가 처리하면 드라이브 폴더에 올라옵니다.'
+          : '대기열에 넣었습니다. PC가 켜져 있으면 몇 분 안에 드라이브 폴더에 올라옵니다.');
+        toast.show('PC 도우미 대기열에 추가했습니다');
+      } catch (err) {
+        btn.fail();
+        setStatus(err.message, true);
+        toast.show(err.message, { type: 'err' });
+      }
+      return;
+    }
 
     controller = new AbortController();
     other.setDisabled(true);

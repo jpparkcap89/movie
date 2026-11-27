@@ -57,6 +57,15 @@ function doPost(e) {
         return json_(saveToDrive_(ip, body));
       case 'stats':
         return json_({ ok: true, stats: stats_(ip) });
+      // ── PC 도우미용 (YouTube 영상) ──
+      case 'queue':
+        return json_(queueAdd_(ip, body));
+      case 'jobs':
+        return json_({ ok: true, jobs: queueTake_() });
+      case 'uploadSession':
+        return json_(uploadSession_(body));
+      case 'jobDone':
+        return json_(queueDone_(ip, body));
       default:
         return json_({ ok: false, error: '알 수 없는 요청이에요.' });
     }
@@ -71,6 +80,7 @@ function setup() {
   ensureSheet_(ss, 'logs', ['시각', 'IP', '플랫폼', '종류', '바이트', '방식', '게시물 주소']);
   const c = ensureSheet_(ss, 'counters', ['키', '날짜', '구분', 'IP', '횟수', '바이트']);
   c.getRange('A:D').setNumberFormat('@');
+  queueSheet_();
 
   const props = PropertiesService.getScriptProperties();
   let key = props.getProperty('API_KEY');
@@ -164,8 +174,9 @@ function analyzeYouTube_(url) {
     title: o.title,
     author: o.author_name,
     thumbnail: 'https://i.ytimg.com/vi/' + id + '/hqdefault.jpg',
-    note: 'YouTube 영상 파일은 GAS로 받을 수 없어서 썸네일만 저장할 수 있어요.',
+    note: 'YouTube 영상은 내 PC의 도우미가 받아서 드라이브에 올려요. "드라이브로"를 누르면 대기열에 들어가고, PC가 켜져 있으면 몇 분 안에 처리돼요.',
     items: [
+      { type: 'video', url: 'https://www.youtube.com/watch?v=' + id, label: '영상 · PC 도우미로 드라이브에 저장', queue: true },
       { type: 'image', url: 'https://i.ytimg.com/vi/' + id + '/maxresdefault.jpg', label: '썸네일 · 최대 해상도' },
       { type: 'image', url: 'https://i.ytimg.com/vi/' + id + '/hqdefault.jpg', label: '썸네일 · 고화질' },
     ],
@@ -343,7 +354,106 @@ function stats_(ip) {
   return {
     myCount: mine.count, perIpLimit: CONFIG.PER_IP_DAILY,
     totalCount: total.count, totalBytes: total.bytes, globalBytesLimit: CONFIG.GLOBAL_BYTES_DAILY,
+    queued: queueCount_(),
   };
+}
+
+/* ───────────────────────── PC 도우미 대기열 (queue 시트) ─────────────────────────
+   웹 화면 → queue(대기) → PC 도우미가 jobs로 가져감(처리 중) → uploadSession으로 드라이브 업로드 주소를 받아
+   직접 올림 → jobDone으로 완료/실패 기록 */
+
+const Q = { ID: 1, AT: 2, STATE: 3, URL: 4, TITLE: 5, FILE: 6, BYTES: 7, NOTE: 8, DONE: 9 };
+const QUEUE_STALE_MS = 90 * 60 * 1000; // '처리 중'으로 90분 넘게 멈춰 있으면 다시 가져갈 수 있게 합니다
+
+function queueSheet_() {
+  return ensureSheet_(book_(), 'queue', ['ID', '요청 시각', '상태', '게시물 주소', '제목', '파일 주소', '바이트', '메모', '처리 시각']);
+}
+
+function queueRows_(sh) {
+  const n = sh.getLastRow() - 1;
+  return n > 0 ? sh.getRange(2, 1, n, 9).getValues() : [];
+}
+
+function queueCount_() {
+  const sh = book_().getSheetByName('queue');
+  if (!sh) return 0;
+  return queueRows_(sh).filter(r => r[Q.STATE - 1] === '대기' || r[Q.STATE - 1] === '처리 중').length;
+}
+
+function queueAdd_(ip, body) {
+  const url = String(body.url || '');
+  if (!/^https:\/\/www\.youtube\.com\/watch\?v=[\w-]{11}$/.test(url)) throw new Error('YouTube 영상 주소가 아니에요.');
+  const before = stats_(ip);
+  if (before.myCount >= CONFIG.PER_IP_DAILY) throw new Error('오늘 받을 수 있는 횟수(' + CONFIG.PER_IP_DAILY + '회)를 모두 썼어요.');
+
+  const sh = queueSheet_();
+  const dup = queueRows_(sh).find(r => r[Q.URL - 1] === url && (r[Q.STATE - 1] === '대기' || r[Q.STATE - 1] === '처리 중'));
+  if (dup) return { ok: true, mode: 'queued', id: dup[Q.ID - 1], duplicate: true, stats: stats_(ip) };
+
+  const id = Utilities.getUuid().slice(0, 8);
+  sh.appendRow([id, new Date(), '대기', url, String(body.title || '').slice(0, 200), '', '', '', '']);
+  return { ok: true, mode: 'queued', id: id, stats: stats_(ip) };
+}
+
+function queueTake_() {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(15000);
+  try {
+    const sh = queueSheet_();
+    const rows = queueRows_(sh);
+    const now = Date.now();
+    const jobs = [];
+    rows.forEach((r, i) => {
+      if (jobs.length >= 3) return;
+      const state = r[Q.STATE - 1];
+      const since = r[Q.DONE - 1] instanceof Date ? r[Q.DONE - 1].getTime() : 0;
+      if (state === '대기' || (state === '처리 중' && now - since > QUEUE_STALE_MS)) {
+        sh.getRange(i + 2, Q.STATE).setValue('처리 중');
+        sh.getRange(i + 2, Q.DONE).setValue(new Date());
+        jobs.push({ id: r[Q.ID - 1], url: r[Q.URL - 1], title: r[Q.TITLE - 1] });
+      }
+    });
+    SpreadsheetApp.flush();
+    return jobs;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function queueFind_(sh, id) {
+  const rows = queueRows_(sh);
+  const i = rows.findIndex(r => r[Q.ID - 1] === id);
+  if (i < 0) throw new Error('대기열에서 작업(' + id + ')을 찾지 못했어요.');
+  return { row: i + 2, values: rows[i] };
+}
+
+/** PC 도우미가 파일을 드라이브에 직접 올릴 수 있도록 업로드 주소(이어 올리기 세션)를 만들어 줍니다. 토큰은 넘기지 않습니다. */
+function uploadSession_(body) {
+  const sh = queueSheet_();
+  queueFind_(sh, String(body.id || ''));
+  const size = Number(body.size);
+  if (!(size > 0)) throw new Error('파일 크기가 올바르지 않아요.');
+  const mime = String(body.mime || 'video/mp4');
+  const name = String(body.name || 'youtube.mp4').replace(/[\\/:*?"<>|]/g, '_').slice(0, 180);
+  const session = startResumable_(ScriptApp.getOAuthToken(), name, mime, size, driveFolder_().getId());
+  return { ok: true, session: session };
+}
+
+function queueDone_(ip, body) {
+  const sh = queueSheet_();
+  const job = queueFind_(sh, String(body.id || ''));
+  const r = job.row;
+  if (body.ok) {
+    const fileUrl = body.fileId ? 'https://drive.google.com/file/d/' + body.fileId + '/view' : '';
+    const bytes = Number(body.bytes) || 0;
+    sh.getRange(r, Q.STATE, 1, 1).setValue('완료');
+    sh.getRange(r, Q.FILE, 1, 4).setValues([[fileUrl, bytes, String(body.name || ''), new Date()]]);
+    record_(ip, 'youtube', 'video', bytes, 'pc', job.values[Q.URL - 1]);
+  } else {
+    sh.getRange(r, Q.STATE, 1, 1).setValue('실패');
+    sh.getRange(r, Q.NOTE, 1, 2).setValues([[String(body.message || '').slice(0, 500), new Date()]]);
+  }
+  return { ok: true };
 }
 
 function record_(ip, platform, type, bytes, mode, sourceUrl) {
